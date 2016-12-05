@@ -81,7 +81,7 @@ def streamCreate():
     
     s.show()
     
-def reconstruction():
+def createNewStream():
     c = converter.parse('./ChopinNocturneOp9No2.xml') # Get Info from Original Sheet
     sc = stream.Score() # New Stream
     
@@ -99,6 +99,8 @@ def reconstruction():
     chord1.timeSignature = timeSignature
     
     melody.append(m)
+    
+    findAllMeasures(c.parts[0])
     
     
     sc.insert(0,melody)
@@ -125,9 +127,8 @@ def findAllNotesWithinMeasure(measure):
     for x in measure.flat.recurse():
         print x
     
-def findAllMeasures():
-    c = converter.parse('./ChopinNocturneOp9No2.xml')
-    m3 = c.parts[0].measure(0)
+def findAllMeasures(part):
+    m3 = part.measure(0)
     temp = m3
     end = False
     while end == False:
@@ -136,11 +137,10 @@ def findAllMeasures():
             end = True
         else:
             findAllNotesWithinMeasure(temp)
-            
             temp = temp.next('Measure')
             
-
-findAllMeasures()
+createNewStream()
+#findAllMeasures()
 #findAllNotesWithinMeasure()
 #flatStream()    
 #noteattributes()
