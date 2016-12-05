@@ -98,11 +98,30 @@ def reconstruction():
     chord1.keySignature = keySignature
     chord1.timeSignature = timeSignature
     
+    melody.append(m)
+    
+    
     sc.insert(0,melody)
     sc.insert(1,chord1)
     sc.show()
- 
-reconstruction()
+    
+def noteattributes():
+    c = converter.parse('./ChopinNocturneOp9No2.xml')
+    pitch = c.parts[0].measure(1).notes[0].pitch
+    duration = c.parts[0].measure(1).notes[0].duration
+    offset = c.parts[0].measure(1).notes[0].offset
+
+    print pitch,duration,offset
+
+def noteCreation(pitch, duration, offset):
+    n = note.Note(pitch)
+    n.duration = duration
+    n.offset = offset
+    return n
+    
+    
+noteattributes()
+#reconstruction()
 #streamCreate()
 #main()   
 #findScale()
