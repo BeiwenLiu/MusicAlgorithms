@@ -121,12 +121,9 @@ def noteCreation(pitch, duration, offset):
     n.offset = offset
     return n
 
-def findAllNotesWithinMeasure():
-    c = converter.parse('./ChopinNocturneOp9No2.xml')
-    for x in c.parts[0].measure(2).recurse():
+def findAllNotesWithinMeasure(measure):
+    for x in measure.flat.recurse():
         print x
-        print x.offset
-        print x.duration
     
 def findAllMeasures():
     c = converter.parse('./ChopinNocturneOp9No2.xml')
@@ -138,12 +135,12 @@ def findAllMeasures():
         if temp is None:
             end = True
         else:
-            for x in temp.flat.recurse():
-                print x
+            findAllNotesWithinMeasure(temp)
+            
             temp = temp.next('Measure')
             
 
-#findAllMeasures()
+findAllMeasures()
 #findAllNotesWithinMeasure()
 #flatStream()    
 #noteattributes()
