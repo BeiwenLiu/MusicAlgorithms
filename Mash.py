@@ -112,15 +112,41 @@ def noteattributes():
     offset = c.parts[0].measure(1).notes[0].offset
 
     print pitch,duration,offset
+    
+    
 
 def noteCreation(pitch, duration, offset):
     n = note.Note(pitch)
     n.duration = duration
     n.offset = offset
     return n
+
+def findAllNotesWithinMeasure():
+    c = converter.parse('./ChopinNocturneOp9No2.xml')
+    for x in c.parts[0].measure(2).recurse():
+        print x
+        print x.offset
+        print x.duration
     
-    
-noteattributes()
+def findAllMeasures():
+    c = converter.parse('./ChopinNocturneOp9No2.xml')
+    m3 = c.parts[0].measure(0)
+    temp = m3
+    end = False
+    while end == False:
+        print temp
+        if temp is None:
+            end = True
+        else:
+            for x in temp.flat.recurse():
+                print x
+            temp = temp.next('Measure')
+            
+
+#findAllMeasures()
+#findAllNotesWithinMeasure()
+#flatStream()    
+#noteattributes()
 #reconstruction()
 #streamCreate()
 #main()   
