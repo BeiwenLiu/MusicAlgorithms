@@ -115,7 +115,7 @@ def findAllMeasuresWithinParts(melody,chords):
     chordMeasures = chords.measure(0)
     c1 = chordMeasures
     
-    melodyMeasures = chords.measure(0)
+    melodyMeasures = melody.measure(0)
     m1 = melodyMeasures
     end = False
     while end == False:
@@ -148,7 +148,7 @@ def createMashForMeasure(chordArray, melodyArray):
         index = 0
         for x in range(0,len(chordArray)): #For each chord in this measure
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
-            affectedMelody = findMelodiesAffected(start,end,melodyArray,index)
+            index = findMelodiesAffected(start,end,melodyArray,index)
             findScale(chordArray[x][0]) 
 
 def findScale(chord1):
@@ -164,11 +164,20 @@ def findWindow(offset,duration):
     start = offset
     end = duration.quarterLength + offset
     return start,end
-    
+
+
 def findMelodiesAffected(start,end,melody,index):
+    counter = index
     for x in range(index,len(melody)):
-        
-           
+        counter = x
+        if melody[x][2] >= end:
+            break
+        if melody[x][2] >= start and melody[x][2] < end:
+            print melody[x][0]
+            #next steps -> need to make an array of all melodies affected here
+    return counter #return the array here with the counter
+    
+
           
 createNewStream()
 #findAllMeasures()
