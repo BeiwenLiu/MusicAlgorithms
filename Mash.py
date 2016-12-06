@@ -145,9 +145,10 @@ def findAllNotesWithinMeasure(measure, whatType):
 def createMashForMeasure(chordArray, melodyArray):
     print "---"
     if (len(chordArray) > 0 and len(melodyArray) > 0):
-        for x in range(0,len(chordArray)):
-            findWindowSize(chordArray[x][2],chordArray[x][2])
-            findScale(chordArray[x][0])
+        index = 0
+        for x in range(0,len(chordArray)): #For each chord in this measure
+            window = findWindowSize(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
+            findScale(chordArray[x][0]) 
 
 def findScale(chord1):
     rootNote = str(chord1.findRoot())[:-1]
@@ -159,7 +160,7 @@ def findScale(chord1):
     fullScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
           
 def findWindowSize(offset,duration):
-    print duration
+    return duration.quarterLength + offset
            
           
 createNewStream()
