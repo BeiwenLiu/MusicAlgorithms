@@ -176,6 +176,7 @@ def findMelodiesAffected(start,end,melody,index):
             print melody[x][0]
             #next steps -> need to make an array of all melodies affected here
     return counter #return the array here with the counter
+        #need to also keep track of pitch so that we can give the range of pitches to findScale
     
 
           
