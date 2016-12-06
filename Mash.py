@@ -148,8 +148,8 @@ def createMashForMeasure(chordArray, melodyArray):
         index = 0
         for x in range(0,len(chordArray)): #For each chord in this measure
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
-            index, melodyAffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
-            #findScale(chordArray[x][0], melodyAffected) 
+            index, melodyAffected, indexHighest, indexLowest = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
+            findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest) 
 
 def findScale(chord1):
     rootNote = str(chord1.findRoot())[:-1] #Beginning to end - 1 to take out the number
@@ -170,7 +170,9 @@ def findMelodiesAffected(start,end,melody,index):
     counter = index
     melodyAffected = []
     highestPitch = 0
-    lowestPitch = 0
+    indexHighest = -1
+    lowestPitch = 10000
+    indexLowest = -1
     for x in range(index,len(melody)):
         counter = x
         if melody[x][2] >= end: #stop if the offset is past the end offset of chord
@@ -178,9 +180,16 @@ def findMelodiesAffected(start,end,melody,index):
         if melody[x][2] >= start and melody[x][2] < end:
             melodyAffected.append([melody[x][0],melody[x][3]])
             weight = int(str(melody[x][0])[-1]) + melody[x][3]
+            if weight < lowestPitch:
+                lowestPitch = weight
+                indexLowest = x
+            if weight > highestPitch:
+                highestPitch = weight
+                indexHighest = x
             print weight
             #next steps -> need to make an array of all melodies affected here
-    return counter, melodyAffected #return the array here with the counter
+    print highestPitch,lowestPitch
+    return counter, melodyAffected, indexHighest, indexLowest #return the array here with the counter
         #need to also keep track of pitch so that we can give the range of pitches to findScale
     
 
