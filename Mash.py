@@ -147,7 +147,8 @@ def createMashForMeasure(chordArray, melodyArray):
     if (len(chordArray) > 0 and len(melodyArray) > 0):
         index = 0
         for x in range(0,len(chordArray)): #For each chord in this measure
-            window = findWindowSize(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
+            start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
+            affectedMelody = findMelodiesAffected(start,end,melodyArray,index)
             findScale(chordArray[x][0]) 
 
 def findScale(chord1):
@@ -159,8 +160,14 @@ def findScale(chord1):
         sc1 = scale.MinorScale(str(rootNote))
     fullScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
           
-def findWindowSize(offset,duration):
-    return duration.quarterLength + offset
+def findWindow(offset,duration):
+    start = offset
+    end = duration.quarterLength + offset
+    return start,end
+    
+def findMelodiesAffected(start,end,melody,index):
+    for x in range(index,len(melody)):
+        
            
           
 createNewStream()
