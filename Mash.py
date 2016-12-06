@@ -5,7 +5,6 @@ Created on Thu Nov  3 23:35:49 2016
 
 @author: Beiwen Liu
 """
-import music21
 from music21 import *
 
 
@@ -100,7 +99,7 @@ def createNewStream():
     
     melody.append(m)
     
-    findAllMeasures(c.parts[0])
+    findAllMeasuresWithinParts(c.parts[0],c.parts[1])
     
     
     sc.insert(0,melody)
@@ -123,21 +122,39 @@ def noteCreation(pitch, duration, offset):
     n.offset = offset
     return n
 
-def findAllNotesWithinMeasure(measure):
-    for x in measure.flat.recurse():
-        print x
     
-def findAllMeasures(part):
-    m3 = part.measure(0)
-    temp = m3
+def findAllMeasuresWithinParts(melody,chords):
+    chordMeasures = chords.measure(0)
+    c1 = chordMeasures
+    
+    melodyMeasures = chords.measure(0)
+    m1 = melodyMeasures
     end = False
     while end == False:
-        print temp
-        if temp is None:
+        if c1 is None:
             end = True
         else:
-            findAllNotesWithinMeasure(temp)
-            temp = temp.next('Measure')
+            chordArray = findAllNotesWithinMeasure(c1, "Chord")
+            melodyArray = findAllNotesWithinMeasure(m1, "Melody")
+            c1 = c1.next('Measure')
+            m1 = m1.next('Measure')
+            
+def findAllNotesWithinMeasure(measure, whatType):
+    totalList = []
+    if (whatType == "Chord"):
+        for x in measure.flat.recurse():
+            if type(x) == chord.Chord:
+                totalList.append([x,x.duration,x.offset])
+                print x,x.duration,x.offset
+    elif (whatType == "Melody"):
+        for x in measure.flat.recurse():
+            if type(x) == note.Note:
+                totalList.append([x.pitch,x.duration,x.offset])
+                print x.pitch,x.duration,x.offset
+                
+def createMashForMeasure(chordArray, melodyArray):
+    
+            
             
 createNewStream()
 #findAllMeasures()
