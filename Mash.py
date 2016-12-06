@@ -154,15 +154,18 @@ def createMashForMeasure(chordArray, melodyArray):
 
 def findScale(chord1, melodyArray, indexH, indexL):
     rootNote = str(chord1.findRoot())[:-1] #Beginning to end - 1 to take out the number
-    print chord1, melodyArray
-    if indexH != -1 and indexL != -1:
-        print "lowest" + str(melodyArray[indexL])
-        print "highest" + str(melodyArray[indexH])
+    default = False
+    if indexH == -1 or indexL == -1:
+        default = True
     if chord1.isMajorTriad():
         sc1 = scale.MajorScale(str(rootNote))
     else:
         sc1 = scale.MinorScale(str(rootNote))
-    fullScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
+    if default:
+        genScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
+    else:
+        genScale = [str(p) for p in sc1.getPitches("{}".format(melodyArray[indexL][0].transpose(-11)),"{}".format(melodyArray[indexH][0].transpose(11)))]
+    print default,chord1,genScale
           
 def findWindow(offset,duration):
     start = offset
