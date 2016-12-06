@@ -28,18 +28,6 @@ def determineChord(measure):
 def determineMelody(measure):
     for x in range(0,len(measure.notes)):
         print "melody" + str(measure.notes[x].offset)
-    
-def findScale():
-    c2 = chord.Chord(['g','e-','b-'])
-    rootNote = c2.findRoot()
-    print rootNote
-    print c2.commonName
-    if c2.isMajorTriad():
-        sc1 = scale.MajorScale(str(rootNote))
-    else:
-        sc1 = scale.MinorScale(str(rootNote))
-    print [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
-           
 
 def main():
     c = converter.parse('./ChopinNocturneOp9No2.xml')
@@ -136,6 +124,7 @@ def findAllMeasuresWithinParts(melody,chords):
         else:
             chordArray = findAllNotesWithinMeasure(c1, "Chord")
             melodyArray = findAllNotesWithinMeasure(m1, "Melody")
+            createMashForMeasure(chordArray, melodyArray)
             c1 = c1.next('Measure')
             m1 = m1.next('Measure')
             
@@ -145,17 +134,34 @@ def findAllNotesWithinMeasure(measure, whatType):
         for x in measure.flat.recurse():
             if type(x) == chord.Chord:
                 totalList.append([x,x.duration,x.offset])
-                print x,x.duration,x.offset
+                #print x,x.duration,x.offset
     elif (whatType == "Melody"):
         for x in measure.flat.recurse():
             if type(x) == note.Note:
                 totalList.append([x.pitch,x.duration,x.offset])
-                print x.pitch,x.duration,x.offset
+                #print x.pitch,x.duration,x.offset
+    return totalList
                 
 def createMashForMeasure(chordArray, melodyArray):
+    print "---"
+    if (len(chordArray) > 0 and len(melodyArray) > 0):
+        for x in range(0,len(chordArray)):
+            findWindowSize(chordArray[x][2],chordArray[x][2])
+            findScale(chordArray[x][0])
+
+def findScale(chord1):
+    rootNote = str(chord1.findRoot())[:-1]
     
-            
-            
+    if chord1.isMajorTriad():
+        sc1 = scale.MajorScale(str(rootNote))
+    else:
+        sc1 = scale.MinorScale(str(rootNote))
+    fullScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
+          
+def findWindowSize(offset,duration):
+    print duration
+           
+          
 createNewStream()
 #findAllMeasures()
 #findAllNotesWithinMeasure()
