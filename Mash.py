@@ -70,28 +70,39 @@ def streamCreate():
     
 def createNewStream():
     c = converter.parse('./ChopinNocturneOp9No2.xml') # Get Info from Original Sheet
-    sc = stream.Score() # New Stream
+    sc = stream.Score(id="MainScore") # New Stream
     
-    melody = stream.Part() # Melody part
-    chord1 = stream.Part() # Chord part
-    
-    m = stream.Measure() 
+    melody = stream.Part(id="part0") # Melody part
+    chord1 = stream.Part(id="part1") # Chord part
     
     timeSignature = c.parts[0].measure(1).getContextByClass('TimeSignature') #Get Time Signature
     keySignature = c.parts[1].measure(1).getContextByClass('KeySignature') #Get Key Signature
     
-    melody.timeSignature = timeSignature
-    melody.keySignature = keySignature
-    chord1.keySignature = keySignature
-    chord1.timeSignature = timeSignature
+    #melody.timeSignature = timeSignature
+    #melody.keySignature = keySignature
+    #chord1.keySignature = keySignature
+    #chord1.timeSignature = timeSignature
+    #sc.timeSignature = timeSignature
+    #sc.keySignature = keySignature
     
-    melody.append(m)
+    m1 = stream.Measure(number=1)
+    m1.keySignature = keySignature
+    m1.timeSignature = timeSignature
+    m1.append(note.Note('C'))
+    m2 = stream.Measure(number=2)
+    m2.append(note.Note('D'))
+    melody.append([m1,m2])
     
-    findAllMeasuresWithinParts(c.parts[0],c.parts[1])
-    
+    m11 = stream.Measure(number=1)
+    m11.keySignature = keySignature
+    m11.timeSignature = timeSignature
+    m11.append(note.Note('E'))
+    m12 = stream.Measure(number=2)
+    m12.append(note.Note('F'))
+    chord1.append([m11,m12])
     
     sc.insert(0,melody)
-    sc.insert(1,chord1)
+    sc.insert(0,chord1)
     sc.show()
     
 def noteattributes():
@@ -138,7 +149,7 @@ def findAllNotesWithinMeasure(measure, whatType):
     elif (whatType == "Melody"):
         for x in measure.flat.recurse():
             if type(x) == note.Note:
-                totalList.append([x.pitch,x.duration,x.offset,x.pitchClass])
+                totalList.append([x.pitch,x.duration,x.offset,x.pitchClass,x])
                 #print x.pitch,x.duration,x.offset
     return totalList
                 
@@ -148,7 +159,7 @@ def createMashForMeasure(chordArray, melodyArray):
         index = 0
         for x in range(0,len(chordArray)): #For each chord in this measure
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
-            index, melodyAffected, indexHighest, indexLowest = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
+            index, melodyAffected, indexHighest, indexLowest, melodyUnaffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
             #createNewMeasure()
 #def createNewMeasure(genChord, genScale, melodiesAffected):
@@ -178,6 +189,7 @@ def findWindow(offset,duration):
 def findMelodiesAffected(start,end,melody,index):
     counter = index
     melodyAffected = []
+    melodyUnaffected = []
     highestPitch = 0
     indexHighest = -1
     lowestPitch = 10000
@@ -197,11 +209,13 @@ def findMelodiesAffected(start,end,melody,index):
                 highestPitch = weight
                 indexHighest = tempIndex
             tempIndex = tempIndex + 1
-    return counter, melodyAffected, indexHighest, indexLowest #return the array here with the counter
+        else:
+            melodyUnaffected.append(melody[x])
+    return counter, melodyAffected, indexHighest, indexLowest, melodyUnaffected #return the array here with the counter
         #need to also keep track of pitch so that we can give the range of pitches to findScale
     
 
-          
+#streamCreate()         
 createNewStream()
 #findAllMeasures()
 #findAllNotesWithinMeasure()
