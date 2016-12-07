@@ -151,7 +151,9 @@ def createMashForMeasure(chordArray, melodyArray):
             index, melodyAffected, indexHighest, indexLowest = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
             #createNewMeasure()
-
+#def createNewMeasure(genChord, genScale, melodiesAffected):
+    
+            
 def findScale(chord1, melodyArray, indexH, indexL):
     rootNote = str(chord1.findRoot())[:-1] #Beginning to end - 1 to take out the number
     default = False
@@ -186,7 +188,7 @@ def findMelodiesAffected(start,end,melody,index):
         if melody[x][2] >= end: #stop if the offset is past the end offset of chord
             break
         if melody[x][2] >= start and melody[x][2] < end:
-            melodyAffected.append([melody[x][0],melody[x][3]])
+            melodyAffected.append(melody[x])
             weight = int(str(melody[x][0])[-1]) + melody[x][3]
             if weight < lowestPitch:
                 lowestPitch = weight
