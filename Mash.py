@@ -157,6 +157,7 @@ def findAllMeasuresWithinParts(melody,chords,newChord,newMelody):
             melodyList.append(m2)
             c1 = c1.next('Measure')
             m1 = m1.next('Measure')
+            print counter
         counter = counter + 1
     newChord.append(chordList)
     newMelody.append(melodyList)
@@ -182,26 +183,30 @@ def findAllNotesWithinMeasureMelody(measure):
                 
 def createMashForMeasure(chordArray, melodyArray, singleNoteChord, chordM, melodyM):
     print "---"
+    enter = False
+    newMelodyArray = []
     if (len(chordArray) > 0 and len(melodyArray) > 0):
         index = 0
-        for x in range(0,len(chordArray)): #For each chord in this measure
+        for x in range(0,len(chordArray)): #For each chord in this measure, find affected melody, and change them
+            enter = True
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
             index, melodyAffected, indexHighest, indexLowest, melodyUnaffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
-            genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
-            #melodyArray = createNewMelody(chordArray[x], genScale, melodyAffected)
-            
+            genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest) #find scale according to the highest and lowest pitches of melody within chord window
+            newMelodyArray = createNewMelody(chordArray[x], genScale, melodyAffected, melodyUnaffected)
+       
+    
     return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord, melodyArray)
   
-#def createNewMelody(genChord, genScale, melodyAffected): #This will generate a new melody array using the scales from the chord
-    #print genChord,genScale,melodyAffected
+def createNewMelody(genChord, genScale, melodyAffected, melodyUnaffected): #This will generate a new melody array using the scales from the chord
+    if len(melodyAffected) > 0: #If there is any melody affected
+        print genScale[0]
+        print int(str(genScale[0])[-1]) * 12 + genScale[0].pitchClass
               
 def createNewMeasure(chordArray,chordM,melodyM,singleNoteChord, melodyArray): #Generate measure here
-    print chordArray, len(chordArray)
     numberofSingle = len(singleNoteChord)
     for x in range(0,len(chordArray)):
         if x < numberofSingle:
             chordM.insert(singleNoteChord[x][0])
-        print chordArray[x][2]
 
         chordM.insert(chordArray[x][2],chordArray[x][0])
     for x in range(0,len(melodyArray)):
@@ -218,9 +223,9 @@ def findScale(chord1, melodyArray, indexH, indexL):
     else:
         sc1 = scale.MinorScale(str(rootNote))
     if default:
-        genScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
+        genScale = [p for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
     else:
-        genScale = [str(p) for p in sc1.getPitches("{}".format(melodyArray[indexL][0].transpose(-11)),"{}".format(melodyArray[indexH][0].transpose(11)))]
+        genScale = [p for p in sc1.getPitches("{}".format(melodyArray[indexL][0].transpose(-11)),"{}".format(melodyArray[indexH][0].transpose(11)))]
     #print default,chord1,genScale
     #genScale will default to the root scale if no melodies are associated with it
     return genScale
@@ -246,7 +251,7 @@ def findMelodiesAffected(start,end,melody,index):
             break
         if melody[x][2] >= start and melody[x][2] < end:
             melodyAffected.append(melody[x])
-            weight = int(str(melody[x][0])[-1]) + melody[x][3]
+            weight = int(str(melody[x][0])[-1]) * 12 + melody[x][3] #Octave * 12 + offset for unique number identifying key
             if weight < lowestPitch:
                 lowestPitch = weight
                 indexLowest = tempIndex
@@ -281,6 +286,15 @@ def pr2(m):
     noa.offset = 5
     noa.duration.type="half"
     m.insert(100,noa)
+    
+def pitchPractice():
+    ne = note.Note('C4')
+    ne1 = note.Note('G5')
+    
+    print ne.pitchClass
+    print ne1.pitchClass
+    
+#pitchPractice()
     
 #practice1()
 #streamCreate()         
