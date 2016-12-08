@@ -182,7 +182,6 @@ def findAllNotesWithinMeasureMelody(measure):
     return totalList
                 
 def createMashForMeasure(chordArray, melodyArray, singleNoteChord, chordM, melodyM):
-    print "---"
     enter = False
     newMelodyArray = []
     if (len(chordArray) > 0 and len(melodyArray) > 0):
@@ -192,15 +191,44 @@ def createMashForMeasure(chordArray, melodyArray, singleNoteChord, chordM, melod
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
             index, melodyAffected, indexHighest, indexLowest, melodyUnaffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest) #find scale according to the highest and lowest pitches of melody within chord window
-            newMelodyArray = createNewMelody(chordArray[x], genScale, melodyAffected, melodyUnaffected)
+            newTempMelodyArray = createNewMelody(chordArray[x], genScale, melodyAffected, melodyUnaffected)
+            for z in range(0,len(newTempMelodyArray)):
+                newMelodyArray.append(newTempMelodyArray[z])
        
-    
-    return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord, melodyArray)
+    if enter:
+        return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord, newMelodyArray)
+        enter = False
+    else:
+        return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord, melodyArray)
   
 def createNewMelody(genChord, genScale, melodyAffected, melodyUnaffected): #This will generate a new melody array using the scales from the chord
+    print "---"
+    print genChord
+    newMelody = []
     if len(melodyAffected) > 0: #If there is any melody affected
-        print genScale[0]
-        print int(str(genScale[0])[-1]) * 12 + genScale[0].pitchClass
+        for y in range(0,len(melodyAffected)):
+            minIndex = -1
+            minValue = 10000
+            actualValue = 0
+            value = int(str(melodyAffected[y][0])[-1]) * 12 + melodyAffected[y][3]
+            for x in range(0,len(genScale)):
+                tempNum = int(str(genScale[x])[-1]) * 12 + genScale[x].pitchClass
+                if abs(tempNum - value) < minValue:
+                    minValue = abs(tempNum - value) #used to compare closest
+                    minIndex = x #used to find which index in scale
+                    actualValue = tempNum - value #used to tranpose the target note
+            if (minValue != 0):
+                tempNote = melodyAffected[y][-1].transpose(actualValue)
+                melodyAffected[y][-1] = tempNote
+            newMelody.append(melodyAffected[y])
+    for z in range(0,len(melodyUnaffected)):
+        newMelody.append(melodyUnaffected[z])
+        #print melodyUnaffected
+    print newMelody
+    return newMelody
+                
+            
+            
               
 def createNewMeasure(chordArray,chordM,melodyM,singleNoteChord, melodyArray): #Generate measure here
     numberofSingle = len(singleNoteChord)
@@ -245,7 +273,11 @@ def findMelodiesAffected(start,end,melody,index):
     lowestPitch = 10000
     indexLowest = -1
     tempIndex = 0
+    print "start: " + str(start)
+    print "end: " + str(end)
+    print "index: " + str(index)
     for x in range(index,len(melody)):
+        print "considering: " + str(melody[x][2])
         counter = x
         if melody[x][2] >= end: #stop if the offset is past the end offset of chord
             break
@@ -259,8 +291,11 @@ def findMelodiesAffected(start,end,melody,index):
                 highestPitch = weight
                 indexHighest = tempIndex
             tempIndex = tempIndex + 1
-        else:
+            counter = counter + 1
+        elif melody[x][2] < start or melody[x][2] >= end:
             melodyUnaffected.append(melody[x])
+            counter = counter + 1
+            print "unaffected" + str(melody[x])
     return counter, melodyAffected, indexHighest, indexLowest, melodyUnaffected #return the array here with the counter
         #need to also keep track of pitch so that we can give the range of pitches to findScale
    
@@ -290,10 +325,14 @@ def pr2(m):
 def pitchPractice():
     ne = note.Note('C4')
     ne1 = note.Note('G5')
+    ads= note.pitch
     
     print ne.pitchClass
     print ne1.pitchClass
+    print abs(-1)
     
+    a = ads.transpose(1)
+    print a
 #pitchPractice()
     
 #practice1()
