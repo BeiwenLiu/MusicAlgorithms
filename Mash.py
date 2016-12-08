@@ -7,6 +7,8 @@ Created on Thu Nov  3 23:35:49 2016
 """
 from music21 import *
 
+c = converter.parse('./ChopinNocturneOp9No2.xml') # Get Info from Original Sheet
+sc = stream.Score(id="MainScore") # New Stream
 
 def switch():
     c = converter.parse('./KL_Rains_of_Castamere.xml')
@@ -69,11 +71,13 @@ def streamCreate():
     s.show()
     
 def createNewStream():
-    c = converter.parse('./ChopinNocturneOp9No2.xml') # Get Info from Original Sheet
-    sc = stream.Score(id="MainScore") # New Stream
+    #c = converter.parse('./ChopinNocturneOp9No2.xml') # Get Info from Original Sheet
+    #sc = stream.Score(id="MainScore") # New Stream
     
     melody = stream.Part(id="part0") # Melody part
     chord1 = stream.Part(id="part1") # Chord part
+    
+    findAllMeasuresWithinParts(c.parts[0],c.parts[1])
     
     timeSignature = c.parts[0].measure(1).getContextByClass('TimeSignature') #Get Time Signature
     keySignature = c.parts[1].measure(1).getContextByClass('KeySignature') #Get Key Signature
@@ -101,8 +105,8 @@ def createNewStream():
     m12.append(note.Note('F'))
     chord1.append([m11,m12])
     
-    sc.insert(0,melody)
-    sc.insert(0,chord1)
+    #sc.insert(0,melody)
+    #sc.insert(0,chord1)
     sc.show()
     
 def noteattributes():
@@ -133,27 +137,32 @@ def findAllMeasuresWithinParts(melody,chords):
         if c1 is None:
             end = True
         else:
-            chordArray = findAllNotesWithinMeasure(c1, "Chord")
-            melodyArray = findAllNotesWithinMeasure(m1, "Melody")
-            createMashForMeasure(chordArray, melodyArray)
+            chordArray, singleNoteChord = findAllNotesWithinMeasureChord(c1)
+            melodyArray = findAllNotesWithinMeasureMelody(m1)
+            createMashForMeasure(chordArray, melodyArray, singleNoteChord)
             c1 = c1.next('Measure')
             m1 = m1.next('Measure')
             
-def findAllNotesWithinMeasure(measure, whatType):
+def findAllNotesWithinMeasureChord(measure):
     totalList = []
-    if (whatType == "Chord"):
-        for x in measure.flat.recurse():
-            if type(x) == chord.Chord:
-                totalList.append([x,x.duration,x.offset])
-                #print x,x.duration,x.offset
-    elif (whatType == "Melody"):
-        for x in measure.flat.recurse():
-            if type(x) == note.Note:
-                totalList.append([x.pitch,x.duration,x.offset,x.pitchClass,x])
-                #print x.pitch,x.duration,x.offset
+    totalList2 = []
+    for x in measure.flat.recurse():
+        if type(x) == chord.Chord:
+            totalList.append([x,x.duration,x.offset])
+            #print x,x.duration,x.offset
+        else:
+            totalList2.append([x,x.duration,x.offset])
+    return totalList, totalList2
+    
+def findAllNotesWithinMeasureMelody(measure):
+    totalList = []
+    for x in measure.flat.recurse():
+        if type(x) == note.Note:
+            totalList.append([x.pitch,x.duration,x.offset,x.pitchClass,x])
+            #print x.pitch,x.duration,x.offset
     return totalList
                 
-def createMashForMeasure(chordArray, melodyArray):
+def createMashForMeasure(chordArray, melodyArray, singleNoteChord):
     print "---"
     if (len(chordArray) > 0 and len(melodyArray) > 0):
         index = 0
@@ -161,9 +170,10 @@ def createMashForMeasure(chordArray, melodyArray):
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
             index, melodyAffected, indexHighest, indexLowest, melodyUnaffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
-            #createNewMeasure()
-#def createNewMeasure(genChord, genScale, melodiesAffected):
-    
+            createNewMeasure(chordArray[x],genScale,melodyAffected,melodyUnaffected,singleNoteChord)
+            
+def createNewMeasure(genChord, genScale, melodiesAffected, melodyUnaffected,singleNoteChord):
+    print melodiesAffected,melodyUnaffected
             
 def findScale(chord1, melodyArray, indexH, indexL):
     rootNote = str(chord1.findRoot())[:-1] #Beginning to end - 1 to take out the number
@@ -178,7 +188,9 @@ def findScale(chord1, melodyArray, indexH, indexL):
         genScale = [str(p) for p in sc1.getPitches("{}5".format(rootNote),"{}6".format(rootNote))]
     else:
         genScale = [str(p) for p in sc1.getPitches("{}".format(melodyArray[indexL][0].transpose(-11)),"{}".format(melodyArray[indexH][0].transpose(11)))]
-    print default,chord1,genScale
+    #print default,chord1,genScale
+    #genScale will default to the root scale if no melodies are associated with it
+    return genScale
           
 def findWindow(offset,duration):
     start = offset
