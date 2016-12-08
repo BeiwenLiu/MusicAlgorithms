@@ -162,7 +162,7 @@ def findAllNotesWithinMeasureChord(measure):
         if type(x) == chord.Chord:
             totalList.append([x,x.duration,x.offset])
             #print x,x.duration,x.offset
-        else:
+        elif type(x) == note.Note:
             totalList2.append([x,x.duration,x.offset])
     return totalList, totalList2
     
@@ -184,14 +184,22 @@ def createMashForMeasure(chordArray, melodyArray, singleNoteChord, chordM, melod
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
             #melodyArray = createNewMelody(chordArray[x], genScale, melodyAffected)
             
-    return createNewMeasure(chordArray,chordM,melodyM)
+    return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord)
   
 #def createNewMelody(genChord, genScale, melodyAffected): #This will generate a new melody array using the scales from the chord
     #print genChord,genScale,melodyAffected
               
-def createNewMeasure(chordArray,chordM,melodyM): #Generate measure here
+def createNewMeasure(chordArray,chordM,melodyM,singleNoteChord): #Generate measure here
+    print chordArray, len(chordArray)
+    numberofSingle = len(singleNoteChord)
     for x in range(0,len(chordArray)):
-        chordM.insert(chordArray[x][0])
+        if x < numberofSingle:
+            print "single" + str(singleNoteChord[x][2])
+            print "note" + str(singleNoteChord[x])
+            #chordM.insert(singleNoteChord[x][2],singleNoteChord[x][0])
+        print chordArray[x][2]
+
+        chordM.insert(chordArray[x][2],chordArray[x][0])
     melodyM.insert(1,note.Note('C'))
     return chordM, melodyM
             
