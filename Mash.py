@@ -133,16 +133,28 @@ def findAllMeasuresWithinParts(melody,chords):
     melodyMeasures = melody.measure(0)
     m1 = melodyMeasures
     end = False
+    counter = 0
+    
+    melodyList = []
+    chordList = []
     while end == False:
         if c1 is None:
             end = True
         else:
+            c2 = stream.Measure(number = counter)
+            c2.offset = c1.offset
+            m2 = stream.Measure(number = counter)
+            m2.offset = m1.offset
+            
             chordArray, singleNoteChord = findAllNotesWithinMeasureChord(c1)
             melodyArray = findAllNotesWithinMeasureMelody(m1)
-            createMashForMeasure(chordArray, melodyArray, singleNoteChord)
+            c2,m2 = createMashForMeasure(chordArray, melodyArray, singleNoteChord, c2, m2)
+            chordList.append(c2)
+            melodyList.append(m2)
             c1 = c1.next('Measure')
             m1 = m1.next('Measure')
-            
+        counter = counter + 1
+    sc.append(melodyList)
 def findAllNotesWithinMeasureChord(measure):
     totalList = []
     totalList2 = []
@@ -162,7 +174,7 @@ def findAllNotesWithinMeasureMelody(measure):
             #print x.pitch,x.duration,x.offset
     return totalList
                 
-def createMashForMeasure(chordArray, melodyArray, singleNoteChord):
+def createMashForMeasure(chordArray, melodyArray, singleNoteChord, chordM, melodyM):
     print "---"
     if (len(chordArray) > 0 and len(melodyArray) > 0):
         index = 0
@@ -170,17 +182,17 @@ def createMashForMeasure(chordArray, melodyArray, singleNoteChord):
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
             index, melodyAffected, indexHighest, indexLowest, melodyUnaffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
-            melodyArray = createNewMelody(chordArray[x], genScale, melodyAffected)
+            #melodyArray = createNewMelody(chordArray[x], genScale, melodyAffected)
             
-    return createNewMeasure(chordArray[x],melodyArray,melodyUnaffected,singleNoteChord)
+    return createNewMeasure(chordM,melodyM)
   
-def createNewMelody(genChord, genScale, melodyAffected): #This will generate a new melody array using the scales from the chord
-    print genChord,genScale,melodyAffected
+#def createNewMelody(genChord, genScale, melodyAffected): #This will generate a new melody array using the scales from the chord
+    #print genChord,genScale,melodyAffected
               
-def createNewMeasure(genChord, melodiesAffected, melodyUnaffected,singleNoteChord): #Generate measure here
-    m2 = stream.Measure(number=2)
-    m2.append(note.Note('D'))
-    return m2
+def createNewMeasure(chordM,melodyM): #Generate measure here
+    chordM.insert(note.Note('G'))
+    melodyM.insert(note.Note('C'))
+    return chordM, melodyM
             
 def findScale(chord1, melodyArray, indexH, indexL):
     rootNote = str(chord1.findRoot())[:-1] #Beginning to end - 1 to take out the number
@@ -256,9 +268,9 @@ def pr2(m):
     noa.duration.type="half"
     m.insert(100,noa)
     
-practice1()
+#practice1()
 #streamCreate()         
-#createNewStream()
+createNewStream()
 #findAllMeasures()
 #findAllNotesWithinMeasure()
 #flatStream()    
