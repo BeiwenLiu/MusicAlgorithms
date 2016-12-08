@@ -143,6 +143,7 @@ def findAllMeasuresWithinParts(melody,chords):
         else:
             c2 = stream.Measure(number = counter)
             c2.offset = c1.offset
+            c2.timeSignature = c1.timeSignature
             m2 = stream.Measure(number = counter)
             m2.offset = m1.offset
             
@@ -196,7 +197,7 @@ def createNewMeasure(chordArray,chordM,melodyM,singleNoteChord): #Generate measu
         if x < numberofSingle:
             print "single" + str(singleNoteChord[x][2])
             print "note" + str(singleNoteChord[x])
-            #chordM.insert(singleNoteChord[x][2],singleNoteChord[x][0])
+            chordM.insert(singleNoteChord[x][2],singleNoteChord[x][0])
         print chordArray[x][2]
 
         chordM.insert(chordArray[x][2],chordArray[x][0])
