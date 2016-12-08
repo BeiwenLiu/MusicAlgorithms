@@ -12,7 +12,7 @@ sc = stream.Score(id="MainScore") # New Stream
 
 def switch():
     c = converter.parse('./KL_Rains_of_Castamere.xml')
-    c2 = converter.parse('./dreamchaser.xml')
+    c2 = converter.parse('./FurElise.xml')
     number = len(c2.parts[1]) #number of measures
     number2 = len(c2.parts[1].measure(4))
     c = c.parts[0].flat
@@ -71,13 +71,14 @@ def streamCreate():
     s.show()
     
 def createNewStream():
-    #c = converter.parse('./ChopinNocturneOp9No2.xml') # Get Info from Original Sheet
+    c = converter.parse('./bumblebee.xml') # Get Info from Original Sheet
+    c5 = converter.parse('./waitingontheworld.xml')
     #sc = stream.Score(id="MainScore") # New Stream
     
     melody = stream.Part(id="part0") # Melody part
     chord1 = stream.Part(id="part1") # Chord part
     
-    findAllMeasuresWithinParts(c.parts[0],c.parts[1],chord1,melody)
+    findAllMeasuresWithinParts(c.parts[0],c5.parts[1],chord1,melody)
     """
     timeSignature = c.parts[0].measure(1).getContextByClass('TimeSignature') #Get Time Signature
     keySignature = c.parts[1].measure(1).getContextByClass('KeySignature') #Get Key Signature
@@ -128,11 +129,14 @@ def noteCreation(pitch, duration, offset):
 
     
 def findAllMeasuresWithinParts(melody,chords,newChord,newMelody):
-    
     chordMeasures = chords.measure(0)
+    if chordMeasures is None:
+        chordMeasures = chords.measure(1)
     c1 = chordMeasures
     
     melodyMeasures = melody.measure(0)
+    if melodyMeasures is None:
+        melodyMeasures = melody.measure(1)
     m1 = melodyMeasures
     end = False
     counter = 0
@@ -140,7 +144,7 @@ def findAllMeasuresWithinParts(melody,chords,newChord,newMelody):
     melodyList = []
     chordList = []
     while end == False:
-        if c1 is None:
+        if c1 is None or m1 is None:
             end = True
         else:
             c2 = stream.Measure(number = counter)
@@ -166,6 +170,7 @@ def findAllNotesWithinMeasureChord(measure):
     totalList = []
     totalList2 = []
     for x in measure.flat.recurse():
+        print x
         if type(x) == chord.Chord:
             totalList.append([x,x.duration,x.offset])
             #print x,x.duration,x.offset
@@ -333,6 +338,12 @@ def pitchPractice():
     
     a = ads.transpose(1)
     print a
+
+def streamP():
+    c5 = converter.parse('dreamchaser.xml')    
+    print c5.parts[1].measure(0)
+
+#streamP()
 #pitchPractice()
     
 #practice1()
