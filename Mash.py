@@ -170,10 +170,17 @@ def createMashForMeasure(chordArray, melodyArray, singleNoteChord):
             start,end = findWindow(chordArray[x][2],chordArray[x][1]) #Find the window size of specific chord
             index, melodyAffected, indexHighest, indexLowest, melodyUnaffected = findMelodiesAffected(start,end,melodyArray,index) #find melodies that are within chord offset + duration
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
-            createNewMeasure(chordArray[x],genScale,melodyAffected,melodyUnaffected,singleNoteChord)
+            melodyArray = createNewMelody(chordArray[x], genScale, melodyAffected)
             
-def createNewMeasure(genChord, genScale, melodiesAffected, melodyUnaffected,singleNoteChord):
-    print melodiesAffected,melodyUnaffected
+    return createNewMeasure(chordArray[x],melodyArray,melodyUnaffected,singleNoteChord)
+  
+def createNewMelody(genChord, genScale, melodyAffected): #This will generate a new melody array using the scales from the chord
+    print genChord,genScale,melodyAffected
+              
+def createNewMeasure(genChord, melodiesAffected, melodyUnaffected,singleNoteChord): #Generate measure here
+    m2 = stream.Measure(number=2)
+    m2.append(note.Note('D'))
+    return m2
             
 def findScale(chord1, melodyArray, indexH, indexL):
     rootNote = str(chord1.findRoot())[:-1] #Beginning to end - 1 to take out the number
@@ -225,10 +232,33 @@ def findMelodiesAffected(start,end,melody,index):
             melodyUnaffected.append(melody[x])
     return counter, melodyAffected, indexHighest, indexLowest, melodyUnaffected #return the array here with the counter
         #need to also keep track of pitch so that we can give the range of pitches to findScale
-    
+   
+        
+def practice1():
+    sc = stream.Score(id="MainScore")
+    n1 = note.Note('G')
+    n1.offset = 5
+    m1 = stream.Measure()
+    #m1.timeSignature = meter.TimeSignature('2/4')
+    m1.insert(n1)
+    m1.offset = 5
+    print n1.offset
+    print m1.offset
+    #m1.insert(0,n1)
+    #print m1.activeSite
+    #print n1.activeSite
+    sc.insert(m1)
+    sc.flat.show()
 
+def pr2(m):
+    noa = note.Note('G')
+    noa.offset = 5
+    noa.duration.type="half"
+    m.insert(100,noa)
+    
+practice1()
 #streamCreate()         
-createNewStream()
+#createNewStream()
 #findAllMeasures()
 #findAllNotesWithinMeasure()
 #flatStream()    
