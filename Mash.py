@@ -77,8 +77,8 @@ def createNewStream():
     melody = stream.Part(id="part0") # Melody part
     chord1 = stream.Part(id="part1") # Chord part
     
-    findAllMeasuresWithinParts(c.parts[0],c.parts[1])
-    
+    findAllMeasuresWithinParts(c.parts[0],c.parts[1],chord1,melody)
+    """
     timeSignature = c.parts[0].measure(1).getContextByClass('TimeSignature') #Get Time Signature
     keySignature = c.parts[1].measure(1).getContextByClass('KeySignature') #Get Key Signature
     
@@ -104,10 +104,11 @@ def createNewStream():
     m12 = stream.Measure(number=2)
     m12.append(note.Note('F'))
     chord1.append([m11,m12])
+    """
     
-    #sc.insert(0,melody)
-    #sc.insert(0,chord1)
-    sc.flat.show()
+    sc.insert(0,melody)
+    sc.insert(0,chord1)
+    sc.show()
     
 def noteattributes():
     c = converter.parse('./ChopinNocturneOp9No2.xml')
@@ -126,7 +127,8 @@ def noteCreation(pitch, duration, offset):
     return n
 
     
-def findAllMeasuresWithinParts(melody,chords):
+def findAllMeasuresWithinParts(melody,chords,newChord,newMelody):
+    
     chordMeasures = chords.measure(0)
     c1 = chordMeasures
     
@@ -146,6 +148,7 @@ def findAllMeasuresWithinParts(melody,chords):
             c2.timeSignature = c1.timeSignature
             m2 = stream.Measure(number = counter)
             m2.offset = m1.offset
+            m2.timeSignature = m1.timeSignature
             
             chordArray, singleNoteChord = findAllNotesWithinMeasureChord(c1)
             melodyArray = findAllNotesWithinMeasureMelody(m1)
@@ -155,7 +158,9 @@ def findAllMeasuresWithinParts(melody,chords):
             c1 = c1.next('Measure')
             m1 = m1.next('Measure')
         counter = counter + 1
-    sc.append(chordList)
+    newChord.append(chordList)
+    newMelody.append(melodyList)
+    
 def findAllNotesWithinMeasureChord(measure):
     totalList = []
     totalList2 = []
@@ -185,23 +190,22 @@ def createMashForMeasure(chordArray, melodyArray, singleNoteChord, chordM, melod
             genScale = findScale(chordArray[x][0], melodyAffected, indexHighest, indexLowest)
             #melodyArray = createNewMelody(chordArray[x], genScale, melodyAffected)
             
-    return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord)
+    return createNewMeasure(chordArray,chordM,melodyM, singleNoteChord, melodyArray)
   
 #def createNewMelody(genChord, genScale, melodyAffected): #This will generate a new melody array using the scales from the chord
     #print genChord,genScale,melodyAffected
               
-def createNewMeasure(chordArray,chordM,melodyM,singleNoteChord): #Generate measure here
+def createNewMeasure(chordArray,chordM,melodyM,singleNoteChord, melodyArray): #Generate measure here
     print chordArray, len(chordArray)
     numberofSingle = len(singleNoteChord)
     for x in range(0,len(chordArray)):
         if x < numberofSingle:
-            print "single" + str(singleNoteChord[x][2])
-            print "note" + str(singleNoteChord[x])
-            chordM.insert(singleNoteChord[x][2],singleNoteChord[x][0])
+            chordM.insert(singleNoteChord[x][0])
         print chordArray[x][2]
 
         chordM.insert(chordArray[x][2],chordArray[x][0])
-    melodyM.insert(1,note.Note('C'))
+    for x in range(0,len(melodyArray)):
+        melodyM.insert(melodyArray[x][-1])
     return chordM, melodyM
             
 def findScale(chord1, melodyArray, indexH, indexL):
